@@ -25,7 +25,7 @@ pub trait AsyncHttpClient<'c> {
     type Error: Error + 'static;
 
     /// Future type returned by HTTP client.
-    type Future: Future<Output = Result<HttpResponse, Self::Error>> + 'c;
+    type Future: Future<Output = Result<HttpResponse, Self::Error>> + 'c + Send;
 
     /// Perform a single HTTP request.
     fn call(&'c self, request: HttpRequest) -> Self::Future;
@@ -33,7 +33,7 @@ pub trait AsyncHttpClient<'c> {
 impl<'c, E, F, T> AsyncHttpClient<'c> for T
 where
     E: Error + 'static,
-    F: Future<Output = Result<HttpResponse, E>> + 'c,
+    F: Future<Output = Result<HttpResponse, E>> + 'c + Send,
     // We can't implement this for FnOnce because the device authorization flow requires clients to
     // supportmultiple calls.
     T: Fn(HttpRequest) -> F,
